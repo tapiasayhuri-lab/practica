@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TuProfe20 Lab | Ejercicio 5 - Inecuaciones con paréntesis</title>
+<!-- KaTeX para renderizado matemático nítido -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"/>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap');
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{font-family:'Nunito',system-ui,sans-serif;background:linear-gradient(135deg,#0f172a 0%,#312e81 45%,#831843 100%);color:#0f172a;user-select:none}
+button,select{font-family:inherit}
+#ink{position:fixed;left:0;right:0;bottom:0;top:72px;width:100vw;height:calc(100vh - 72px);z-index:70;pointer-events:none;touch-action:none}
+.drawactive #ink{pointer-events:auto;cursor:crosshair}
+.hidden{display:none!important}
+.app{width:100vw;height:100dvh;position:relative;overflow:hidden}
+.floaters{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.floaters span{position:absolute;display:block;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.12);animation:floatUp linear infinite}
+@keyframes floatUp{0%{transform:translateY(105vh) rotate(0deg);opacity:0}10%{opacity:1}100%{transform:translateY(-15vh) rotate(360deg);opacity:0}}
+.home,.lab{position:absolute;inset:0;z-index:1}
+.brandpill{display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:18px;border:2px solid rgba(250,204,21,.5);background:rgba(255,255,255,.12);backdrop-filter:blur(10px);color:#fde047;font-weight:900;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+.soundbtn,.miniBtn{border:none;background:rgba(255,255,255,.14);color:#fff;border:2px solid rgba(255,255,255,.26);padding:10px 14px;border-radius:18px;font-weight:900;cursor:pointer;backdrop-filter:blur(8px);box-shadow:0 10px 24px rgba(0,0,0,.18);transition:.2s transform,.2s background}
+.soundbtn:hover,.miniBtn:hover{transform:translateY(-2px)}
+.lab{padding:14px;display:flex!important;flex-direction:column}
+.labTop{position:relative;z-index:120;width:min(98%,1450px);margin:0 auto 8px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.labTop .brandpill{font-size:19px}
+.stage{color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:9px 15px;font-weight:900;letter-spacing:.03em}
+.board{position:relative;z-index:2;width:min(98%,1450px);margin:0 auto;flex:1;min-height:0;background:#fff;border:6px solid #f8fafc;border-radius:38px;box-shadow:0 30px 60px rgba(0,0,0,.45);overflow:hidden;display:flex;flex-direction:column}
+.boardHead{background:#0f172a;color:#fff;border-bottom:4px solid #06b6d4;padding:14px 22px;box-shadow:0 8px 18px rgba(0,0,0,.2)}
+.boardMeta{display:flex;justify-content:space-between;align-items:center;gap:10px;max-width:1120px;margin:0 auto 8px auto}
+.topBadge{display:inline-block;padding:6px 10px;border-radius:10px;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.blockTag{background:#06b6d4;color:#082f49}
+.typeTag{background:rgba(255,255,255,.14);color:#fde68a}
+.enunciado{max-width:1120px;margin:0 auto;text-align:center;font-size:clamp(20px,2.4vw,32px);font-weight:800;line-height:1.35}
+#enunciadoEq{margin-top:9px;font-size:1.48em;color:#fde047}
+.boardBody{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;background:#f8fafc}
+.half{min-width:0;min-height:0;display:flex;flex-direction:column;position:relative}
+.half.left{border-right:2px solid rgba(148,163,184,.35)}
+.panelTitle{padding:14px 18px;border-bottom:2px solid rgba(203,213,225,.7);background:linear-gradient(90deg,#ffffff,#f1f5f9);color:#0f172a;font-size:clamp(17px,1.65vw,23px);font-weight:900;display:flex;justify-content:space-between;align-items:center}
+.panelTitle small{font-size:13px;color:#475569}
+.stepsArea{flex:1;min-height:0;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:14px;background:radial-gradient(circle at center,rgba(15,23,42,.03) 2px,transparent 2px);background-size:22px 22px}
+.step{background:#fff;border:2px solid #e2e8f0;border-radius:22px;padding:16px 20px;box-shadow:0 10px 22px rgba(15,23,42,.08);animation:slideIn .28s ease-out both}
+.step.current{border-color:#7c3aed;background:#faf5ff}
+@keyframes slideIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+.stepWhy{display:flex;align-items:center;gap:10px;margin-bottom:8px;color:#475569;font-size:clamp(14px,1.2vw,18px);font-weight:800}
+.stepWhy b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#2563eb;color:#fff;flex:0 0 auto}
+.mathLine{font-size:clamp(21px,2.1vw,34px);color:#0f172a;overflow-x:auto;overflow-y:hidden;padding:7px 0}
+.mathLine .katex-display{margin:.3em 0}
+.emptyBox{flex:1;display:grid;place-items:center;text-align:center;color:#64748b;padding:20px}
+.emptyBox strong{font-size:clamp(21px,2vw,30px);color:#334155}
+.notice{background:#f0fdf4;border:2px solid #86efac;color:#166534;border-radius:14px;padding:12px;font-weight:900;text-align:center}
+.graphWrap{flex:1;min-height:0;padding:14px 18px 8px;display:flex;flex-direction:column}
+.graphTitle{text-align:center;color:#4338ca;font-size:17px;font-weight:900;margin-bottom:6px}
+.graphBox{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#fff,#f8fafc);border:2px solid #e2e8f0;border-radius:24px;padding:10px;box-shadow:inset 0 0 0 1px #fff;position:relative;overflow:hidden}
+.graphBox svg{width:100%;height:100%;max-height:none;overflow:visible}
+.graphHint{font-size:13px;color:#475569;margin:9px auto;text-align:center;font-weight:700}
+.graphTip{margin-top:4px;padding:10px 14px;border-radius:16px;border:2px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:15px;font-weight:800}
+.controls{padding:10px 14px;border-top:2px solid rgba(203,213,225,.7);background:#fff;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctrl{border:none;border-radius:14px;padding:10px 14px;font-size:15px;font-weight:900;cursor:pointer;transition:.18s;box-shadow:0 4px 0 rgba(15,23,42,.12)}
+.ctrl:active{transform:translateY(2px);box-shadow:none}
+.ctrl:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.ctrl.main{background:#2563eb;color:#fff}
+.ctrl.alt{background:#fff;color:#334155;border:2px solid #cbd5e1}
+.ctrl.gold{background:#facc15;color:#713f12}
+.progressShell{width:180px;height:13px;background:#dbeafe;border-radius:999px;overflow:hidden}
+.progressBar{height:100%;background:linear-gradient(90deg,#22d3ee,#2563eb);width:0%;transition:width .25s}
+.toolbar{position:relative;z-index:130;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;padding:6px 12px;border-radius:22px;background:linear-gradient(135deg,rgba(15,23,42,.88),rgba(49,46,129,.88));border:2px solid rgba(255,255,255,.28);box-shadow:0 12px 28px rgba(0,0,0,.32);backdrop-filter:blur(12px)}
+.toolbar .tbtn{border:none;border-radius:14px;padding:7px 11px;background:rgba(255,255,255,.14);color:#fff;font-size:13px;font-weight:900;cursor:pointer;border:1.5px solid rgba(255,255,255,.22);transition:transform .18s cubic-bezier(.34,1.56,.64,1),background .2s,box-shadow .2s}
+.toolbar .tbtn:hover{transform:translateY(-2px) scale(1.04);background:rgba(255,255,255,.24)}
+.toolbar .tbtn.active{background:linear-gradient(135deg,#facc15,#f97316);color:#0f172a;border-color:#fde047;box-shadow:0 0 16px rgba(250,204,21,.55);transform:scale(1.05)}
+.palette{display:flex;align-items:center;gap:6px;padding:0 4px}
+.swatch{width:24px;height:24px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);cursor:pointer;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.swatch:hover{transform:scale(1.18)}
+.swatch.sel{transform:scale(1.22);outline:3px solid #fde047}
+
+@media (max-width:900px){
+  .boardBody{grid-template-columns:1fr;overflow:auto}
+  .half.left{border-right:none;border-bottom:2px solid rgba(148,163,184,.35);min-height:240px}
+  .half.right{min-height:290px}
+  .board{overflow:auto}
+  .stepsArea{max-height:35vh}
+  .labTop{flex-wrap:wrap;justify-content:center}
+  .graphBox{min-height:220px}
+}
+@media (max-width:640px){
+  .lab{padding:8px}
+  .board{border-width:5px;border-radius:22px}
+  .enunciado{font-size:18px}
+  .panelTitle{font-size:18px}
+  .toolbar{gap:4px;padding:5px 8px}
+  .toolbar .tbtn{padding:6px 8px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<!-- Lienzo transparente para anotaciones de pizarra activa -->
+<canvas id="ink"></canvas>
+
+<div class="app">
+  <!-- Partículas flotantes de fondo -->
+  <div class="floaters" id="floaters"></div>
+
+  <!-- Laboratorio interactivo del Ejercicio 5 -->
+  <section class="lab" id="labView">
+    <div class="labTop">
+      <span class="brandpill">🚀 TuProfe20 Lab · Aula 23</span>
+
+      <!-- Barra de pizarra integrada en la zona superior para no tapar el contenido -->
+      <nav class="toolbar" aria-label="Pizarra activa">
+        <button class="tbtn active" data-tool="select">☝ Selector</button>
+        <button class="tbtn" data-tool="pen" title="Mantén Shift presionado para trazar una línea recta">✏ Lápiz · Shift</button>
+        <button class="tbtn" data-tool="marker">🖍 Resaltador</button>
+        <button class="tbtn" data-tool="line">📐 Línea</button>
+        <button class="tbtn" data-tool="erase">◻ Borrador</button>
+        <div class="palette">
+          <button class="swatch sel" data-color="#ef4444" style="background:#ef4444" title="Rojo"></button>
+          <button class="swatch" data-color="#2563eb" style="background:#2563eb" title="Azul"></button>
+          <button class="swatch" data-color="#16a34a" style="background:#16a34a" title="Verde"></button>
+          <button class="swatch" data-color="#facc15" style="background:#facc15" title="Amarillo"></button>
+          <button class="swatch" data-color="#9333ea" style="background:#9333ea" title="Morado"></button>
+        </div>
+        <button class="tbtn" id="undoInk" title="Deshacer trazo">↩</button>
+        <button class="tbtn" id="clearInk" title="Limpiar pizarra">🗑</button>
+      </nav>
+
+      <div class="group">
+        <span class="stage">EJERCICIO 5 · PARÉNTESIS Y TÉRMINOS</span>
+        <button class="miniBtn" id="toggleMute">🔊 Sonido</button>
+      </div>
+    </div>
+
+    <div class="board">
+      <!-- Encabezado con consigna e inecuación original -->
+      <div class="boardHead">
+        <div class="boardMeta">
+          <span class="topBadge blockTag">BLOQUE 01 · TÉRMINOS SEMEJANTES</span>
+          <span class="topBadge typeTag">DESARROLLA Y REPRESENTA</span>
+        </div>
+        <div class="enunciado">
+          <div>Reduce términos semejantes, resuelve y grafica.</div>
+          <div id="enunciadoEq"></div>
+        </div>
+      </div>
+
+      <!-- Cuerpo dividido: Izquierda (pasos) y Derecha (recta numérica) -->
+      <div class="boardBody">
+        <div class="half left">
+          <div class="panelTitle">✍️ Resolución paso a paso <small id="stepMeta">0 de 5 pasos</small></div>
+          <div class="stepsArea" id="stepsArea"></div>
+        </div>
+
+        <div class="half right">
+          <div class="panelTitle">📏 Recta numérica <small>Conjunto solución</small></div>
+          <div class="graphWrap">
+            <div class="graphTitle" id="graphTitle">Observa cómo se construye el esquema.</div>
+            <div class="graphBox" id="graphBox"></div>
+            <div class="graphHint">● Punto cerrado = extremo incluido · ← Valores menores o iguales</div>
+            <div class="graphTip" id="graphTip"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de controles de navegación entre pasos -->
+      <div class="controls">
+        <div class="group">
+          <button class="ctrl alt" id="prevStep">↶ Paso anterior</button>
+          <button class="ctrl main" id="nextStep">Siguiente paso ▶</button>
+          <button class="ctrl gold" id="solveAll">Resolver todo ★</button>
+          <button class="ctrl alt" id="restart">↻ Reiniciar</button>
+        </div>
+        <div class="group">
+          <div class="progressShell"><div class="progressBar" id="progressBar"></div></div>
+          <strong id="progressTxt">0 / 5</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let revealed = 0;
+
+// Pasos pedagógicos para resolver 3(2x - 1) - 5 <= 2(x + 7) + 4
+const STEPS = [
+  {
+    why: 'Aplicamos la propiedad distributiva para eliminar los paréntesis en ambos miembros.',
+    math: '6x - 3 - 5 \\le 2x + 14 + 4',
+    phase: 0
+  },
+  {
+    why: 'Reducimos los términos numéricos semejantes en cada lado de la desigualdad.',
+    math: '6x - 8 \\le 2x + 18',
+    phase: 0
+  },
+  {
+    why: 'Agrupamos los términos con x a la izquierda y los números a la derecha.',
+    math: '6x - 2x \\le 18 + 8 \\quad\\Rightarrow\\quad 4x \\le 26',
+    phase: 0
+  },
+  {
+    why: 'Dividimos ambos miembros entre 4 (positivo, el signo ≤ se conserva) y simplificamos.',
+    math: 'x \\le \\frac{26}{4} \\quad\\Rightarrow\\quad x \\le \\frac{13}{2} \\;(6{,}5)',
+    phase: 1
+  },
+  {
+    why: 'Como el signo es ≤, el valor 13/2 sí se incluye. Representamos todos los valores menores o iguales.',
+    math: '\\boxed{CS = \\left(-\\infty,\\,\\frac{13}{2}\\right]}',
+    phase: 2
+  }
+];
+
+// Renderiza expresiones en LaTeX usando KaTeX con respaldo de texto plano
+function math(tex, el, display = false) {
+  if (window.katex) {
+    try {
+      window.katex.render(tex, el, { displayMode: display, throwOnError: false, strict: 'ignore' });
+      return;
+    } catch (e) {}
+  }
+  el.textContent = tex;
+}
+
+// Genera partículas decorativas flotantes en el fondo
+function createFloaters() {
+  const f = $('floaters');
+  if (!f) return;
+  f.innerHTML = '';
+  for (let i = 0; i < 16; i++) {
+    const s = document.createElement('span');
+    s.style.left = Math.random() * 100 + '%';
+    s.style.animationDuration = (10 + Math.random() * 18) + 's';
+    s.style.animationDelay = -Math.random() * 20 + 's';
+    f.appendChild(s);
+  }
+}
+
+// Construye dinámicamente la recta numérica SVG desde 0 hasta 10 con foco en 13/2 (6.5)
+function graph() {
+  const marks = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const x = v => 100 + v * 84;
+  const y = 215;
+  const critX = x(6.5);
+
+  let svg = `<svg viewBox="0 0 1050 420" role="img" aria-label="Recta numérica: solución desde menos infinito hasta 13/2 incluido">
+    <defs>
+      <linearGradient id="rayLeft" x1="1" x2="0">
+        <stop offset="0" stop-color="#facc15"/>
+        <stop offset="1" stop-color="#fde047"/>
+      </linearGradient>
+    </defs>
+    <text x="525" y="74" font-size="27" text-anchor="middle" font-weight="900" fill="#4338ca">
+      ${revealed < 4 ? 'Identifiquemos el valor crítico' : revealed === 4 ? 'Punto crítico: 13/2 = 6,5' : 'CONJUNTO SOLUCIÓN'}
+    </text>
+    <line x1="74" y1="${y}" x2="965" y2="${y}" stroke="#e11d48" stroke-width="9" stroke-linecap="round"/>
+    <path d="M 64 ${y} L 89 ${y - 15} L 89 ${y + 15} Z M 985 ${y} L 960 ${y - 15} L 960 ${y + 15} Z" fill="#e11d48"/>`;
+
+  for (const m of marks) {
+    const z = x(m);
+    svg += `<line x1="${z}" y1="${y - 16}" x2="${z}" y2="${y + 16}" stroke="#334155" stroke-width="3"/>
+      <text x="${z}" y="${y + 54}" text-anchor="middle" font-weight="900" font-size="25" fill="#334155">${m}</text>`;
+  }
+
+  svg += `<text x="48" y="${y + 54}" fill="#334155" font-size="22" font-weight="800">−∞</text>
+    <text x="945" y="${y + 54}" fill="#334155" font-size="22" font-weight="800">+∞</text>`;
+
+  if (revealed >= 4) {
+    svg += `<line x1="${critX}" x2="${critX}" y1="94" y2="318" stroke="#f97316" stroke-width="4" stroke-dasharray="10 8" class="guideReveal"/>
+      <text x="${critX}" y="118" text-anchor="middle" fill="#6d28d9" font-size="24" font-weight="900">13/2 (6,5)</text>`;
+
+    if (revealed === 4) {
+      svg += `<circle cx="${critX}" cy="${y}" r="14" fill="#ffffff" stroke="#7c3aed" stroke-width="5" class="guideReveal"/>`;
+    } else {
+      svg += `<rect x="86" y="${y - 20}" width="${critX - 86}" height="40" rx="20" fill="url(#rayLeft)" stroke="#ca8a04" stroke-width="3" class="bandReveal"/>
+        <path d="M 76 ${y} l 27 -19 v 38 Z" fill="#facc15" class="bandReveal"/>
+        <circle cx="${critX}" cy="${y}" r="17" fill="#facc15" stroke="#854d0e" stroke-width="5" class="guideReveal"/>
+        <text x="${critX - 185}" y="${y - 52}" text-anchor="middle" fill="#92400e" font-size="29" font-weight="900">x ≤ 13/2</text>
+        <text x="${critX - 185}" y="${y + 104}" text-anchor="middle" fill="#166534" font-size="24" font-weight="900">13/2 está incluido ✓</text>`;
+    }
+  }
+
+  svg += `<style>
+    .bandReveal{transform-box:fill-box;transform-origin:right center;animation:growLeft .75s ease-out both}
+    @keyframes growLeft{from{opacity:.15;transform:scaleX(.05)}to{opacity:1;transform:scaleX(1)}}
+    .guideReveal{animation:appear .4s ease-out}
+    @keyframes appear{from{opacity:0}to{opacity:1}}
+  </style></svg>`;
+  return svg;
+}
+
+// Actualiza la vista completa según el número de pasos revelados
+function render() {
+  math('3(2x - 1) - 5 \\le 2(x + 7) + 4', $('enunciadoEq'), true);
+  const area = $('stepsArea');
+  area.innerHTML = '';
+
+  if (!revealed) {
+    area.innerHTML = `<div class="emptyBox">
+      <div>
+        <strong>¿Cómo empezamos?</strong>
+        <p>Presiona <b>Siguiente paso</b> para aplicar la propiedad distributiva en ambos lados.</p>
+        <p>Al finalizar verás la solución resaltada en amarillo hacia −∞.</p>
+      </div>
+    </div>`;
+  } else {
+    STEPS.slice(0, revealed).forEach((s, i) => {
+      const d = document.createElement('div');
+      d.className = 'step' + (i === revealed - 1 ? ' current' : '');
+      d.innerHTML = `<div class="stepWhy"><b>${i + 1}</b><span>${s.why}</span></div><div class="mathLine"></div>`;
+      area.appendChild(d);
+      math(s.math, d.querySelector('.mathLine'), true);
+    });
+
+    if (revealed === 5) {
+      const d = document.createElement('div');
+      d.className = 'notice';
+      d.textContent = '✓ Solución: todos los números reales desde −∞ hasta 13/2 (6,5) incluido.';
+      area.appendChild(d);
+    }
+    area.scrollTop = area.scrollHeight;
+  }
+
+  $('graphBox').innerHTML = graph();
+  $('stepMeta').textContent = `${revealed} de 5 pasos`;
+  $('progressTxt').textContent = `${revealed} / 5`;
+  $('progressBar').style.width = (revealed * 20) + '%';
+  $('nextStep').disabled = revealed === 5;
+  $('prevStep').disabled = revealed === 0;
+
+  $('graphTitle').textContent = revealed === 5
+    ? 'La franja amarilla representa el conjunto solución.'
+    : revealed === 4
+      ? 'Marcamos el punto crítico 13/2 (6,5); falta sombrear la región.'
+      : 'La recta numérica se completa conforme avanzas.';
+
+  $('graphTip').textContent = revealed === 5
+    ? 'El círculo relleno indica que 13/2 está incluido (≤). La franja amarilla se extiende hacia −∞.'
+    : revealed === 4
+      ? 'Como x ≤ 13/2, partiremos desde 6,5 con punto cerrado y avanzaremos hacia la izquierda.'
+      : 'Primero reduce términos semejantes y despeja x; al final aparecerá la región solución.';
+}
+
+$('nextStep').onclick = () => { revealed = Math.min(5, revealed + 1); render(); };
+$('prevStep').onclick = () => { revealed = Math.max(0, revealed - 1); render(); };
+$('solveAll').onclick = () => { revealed = 5; render(); };
+$('restart').onclick = () => { revealed = 0; render(); };
+
+// Sintetizador de efectos de sonido con Web Audio API
+let soundEnabled = true, audioContext = null;
+function playSound(kind = 'click') {
+  if (!soundEnabled) return;
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    if (!audioContext) audioContext = new AudioCtx();
+    if (audioContext.state === 'suspended') audioContext.resume().catch(() => {});
+    const now = audioContext.currentTime;
+    const notes = kind === 'success' ? [660, 830, 1046] : kind === 'step' ? [520, 710] : kind === 'draw' ? [360] : [440, 600];
+    notes.forEach((freq, i) => {
+      const o = audioContext.createOscillator(), gain = audioContext.createGain();
+      const start = now + i * 0.055, end = start + (kind === 'draw' ? 0.065 : 0.115);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(kind === 'draw' ? 0.018 : 0.075, start + 0.013);
+      gain.gain.exponentialRampToValueAtTime(0.0001, end);
+      o.connect(gain);
+      gain.connect(audioContext.destination);
+      o.start(start);
+      o.stop(end + 0.01);
+    });
+  } catch (e) {}
+}
+
+function syncSound() {
+  $('toggleMute').textContent = soundEnabled ? '🔊 Sonido' : '🔇 Silencio';
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  syncSound();
+  if (soundEnabled) playSound('success');
+}
+$('toggleMute').onclick = toggleSound;
+
+document.addEventListener('click', ev => {
+  if (ev.target.closest('#toggleMute')) return;
+  if (ev.target.closest('button,select')) {
+    if (ev.target.closest('#solveAll')) playSound('success');
+    else if (ev.target.closest('#nextStep,#prevStep')) playSound('step');
+    else playSound('click');
+  }
+}, true);
+
+// Configuración de pizarra activa con lienzo principal y sub-lienzo para resaltador
+const ink = $('ink');
+const ctx = ink.getContext('2d', { willReadFrequently: true });
+const strokeLayer = document.createElement('canvas');
+const sCtx = strokeLayer.getContext('2d');
+let tool = 'select', color = '#ef4444', down = false, last = null, origin = null, snapshot = null, straightMode = false, undo = [], currentStroke = [], inkTopOffset = 72;
+
+// Ajusta el lienzo exactamente debajo de la barra superior para que los botones sean siempre clicables
+function resizeInk() {
+  const topBar = document.querySelector('.labTop');
+  const rect = topBar ? topBar.getBoundingClientRect() : null;
+  inkTopOffset = rect ? Math.ceil(rect.bottom + 4) : 72;
+  ink.style.top = inkTopOffset + 'px';
+  ink.style.height = `calc(100vh - ${inkTopOffset}px)`;
+
+  const w = window.innerWidth;
+  const h = Math.max(100, window.innerHeight - inkTopOffset);
+  const old = document.createElement('canvas');
+  old.width = ink.width;
+  old.height = ink.height;
+  if (old.width && old.height) old.getContext('2d').drawImage(ink, 0, 0);
+
+  ink.width = w;
+  ink.height = h;
+  strokeLayer.width = w;
+  strokeLayer.height = h;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  sCtx.setTransform(1, 0, 0, 1, 0, 0);
+  if (old.width && old.height) ctx.drawImage(old, 0, 0, w, h);
+}
+addEventListener('resize', resizeInk);
+resizeInk();
+
+function saveInk() {
+  undo.push(ctx.getImageData(0, 0, ink.width, ink.height));
+  if (undo.length > 14) undo.shift();
+}
+
+function setTool(t) {
+  tool = t;
+  document.body.classList.toggle('drawactive', t !== 'select');
+  document.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === t));
+}
+
+document.querySelectorAll('[data-tool]').forEach(b => b.onclick = () => setTool(b.dataset.tool));
+document.querySelectorAll('[data-color]').forEach(b => b.onclick = () => {
+  color = b.dataset.color;
+  document.querySelectorAll('[data-color]').forEach(x => x.classList.toggle('sel', x === b));
+});
+
+$('clearInk').onclick = () => {
+  saveInk();
+  ctx.clearRect(0, 0, ink.width, ink.height);
+};
+
+$('undoInk').onclick = () => {
+  if (undo.length) ctx.putImageData(undo.pop(), 0, 0);
+};
+// Coordenadas exactas del puntero relativas al lienzo debajo de la barra superior
+function point(ev) {
+  const rect = ink.getBoundingClientRect();
+  return {
+    x: ev.clientX - rect.left,
+    y: ev.clientY - rect.top
+  };
+}
+
+// Dibuja la ruta completa acumulada (ideal para resaltador fluorescente uniforme y líneas nítidas)
+function renderCurrentPath(points, style) {
+  if (!points.length) return;
+
+  if (style === 'marker') {
+    // Resaltador fluorescente real: punta plana biselada, color vivo translúcido sin manchas dobles
+    sCtx.clearRect(0, 0, strokeLayer.width, strokeLayer.height);
+    sCtx.lineCap = 'butt';
+    sCtx.lineJoin = 'round';
+    sCtx.lineWidth = 26;
+    sCtx.strokeStyle = color;
+    sCtx.beginPath();
+    if (points.length === 1) {
+      sCtx.moveTo(points[0].x - 10, points[0].y);
+      sCtx.lineTo(points[0].x + 10, points[0].y);
+    } else {
+      sCtx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        sCtx.lineTo(points[i].x, points[i].y);
+      }
+    }
+    sCtx.stroke();
+
+    if (snapshot) ctx.putImageData(snapshot, 0, 0);
+    ctx.save();
+    ctx.globalAlpha = 0.34;
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.drawImage(strokeLayer, 0, 0);
+    ctx.restore();
+    return;
+  }
+
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = style === 'erase' ? 36 : 4.5;
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = style === 'erase' ? 'destination-out' : 'source-over';
+  ctx.strokeStyle = color;
+
+  if (points.length === 1) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(points[0].x, points[0].y, style === 'erase' ? 18 : 2.3, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+ink.addEventListener('pointerdown', ev => {
+  if (tool === 'select' || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
+
+  ev.preventDefault();
+  saveInk();
+  down = true;
+  origin = last = point(ev);
+  currentStroke = [origin];
+  straightMode = tool === 'line' || (tool === 'pen' && ev.shiftKey);
+  snapshot = ctx.getImageData(0, 0, ink.width, ink.height);
+  ink.setPointerCapture(ev.pointerId);
+  playSound('draw');
+  renderCurrentPath(currentStroke, tool);
+});
+
+ink.addEventListener('pointermove', ev => {
+  if (!down) return;
+  ev.preventDefault();
+  const p = point(ev);
+
+  if (tool === 'pen' && ev.shiftKey) straightMode = true;
+
+  if (straightMode) {
+    ctx.putImageData(snapshot, 0, 0);
+    renderCurrentPath([origin, p], tool);
+  } else if (tool === 'marker') {
+    currentStroke.push(p);
+    renderCurrentPath(currentStroke, 'marker');
+  } else {
+    renderCurrentPath([last, p], tool);
+    last = p;
+  }
+});
+
+function stopInk(ev) {
+  if (!down) return;
+  const p = point(ev);
+
+  if (straightMode && snapshot) {
+    ctx.putImageData(snapshot, 0, 0);
+    renderCurrentPath([origin, p], tool);
+  }
+  down = false;
+  straightMode = false;
+  snapshot = null;
+  currentStroke = [];
+  if (ev.pointerId !== undefined && ink.hasPointerCapture(ev.pointerId)) {
+    ink.releasePointerCapture(ev.pointerId);
+  }
+}
+
+ink.addEventListener('pointerup', stopInk);
+ink.addEventListener('pointercancel', stopInk);
+window.addEventListener('blur', () => { down = false; straightMode = false; });
+
+// Atajos de teclado para navegar pasos y herramientas
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') setTool('select');
+  if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') {
+    ev.preventDefault();
+    $('undoInk').click();
+  }
+  if (tool === 'select' && ev.key === 'ArrowRight') $('nextStep').click();
+  if (tool === 'select' && ev.key === 'ArrowLeft') $('prevStep').click();
+});
+
+// Inicialización de la aplicación
+function init() {
+  createFloaters();
+  resizeInk();
+  setTool('select');
+  syncSound();
+  render();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
